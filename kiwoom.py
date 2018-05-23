@@ -21,9 +21,17 @@ class MyWindow(QMainWindow):
     # 윈도우의 좌표, 사이즈를 변경하는 메소드
     self.setGeometry(300, 300, 300, 400)
     
-    # 
+    # 키움증권에서 제공하는 클래스를 사용하기 위해 ProgID를 QAxWidget 클래스의 생성자로 전달하여 인스턴스를 생성
     self.kiwoom = QAxWidget("KHOPENAPI.KHOpenAPICtrl.1")
+    # COM 방식에서 인스턴스를 통해 메서드를 호출했던 것과 달리 OCX 방식에서는 QAxBase 클래스의 dynamicCall 메서드를 사용해 원하는 메서드를 호출
+    # QAxWidget 클래스는 QAxBase 클래스를 상속받았으므로 QAxWidget 클래스의 인스턴스는 dynamicCall 메서드를 호출할 수 있음
     self.kiwoom.dynamicCall("CommConnect()")
+    
+    self.text_edit = QTextEdit(self)
+    self.text_edit.setGeometry(10, 60, 280, 80)
+    self.text_edit.setEnabled(False)
+    
+    # Open API+는 통신 연결 상태가 바뀔 때 OnEventConnect라는 이벤트가 발생
     # 이벤트(OnEventConnect) 발생 시 자동으로 이벤트 처리 메서드(self.event_connect) 호출
     self.kiwoom.OnEventConnect.connect(self.event_connect)
     
