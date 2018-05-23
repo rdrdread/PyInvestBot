@@ -21,7 +21,11 @@ class MyWindow(QMainWindow):
     # 윈도우의 좌표, 사이즈를 변경하는 메소드
     self.setGeometry(300, 300, 300, 400)
     
+    # 
     self.kiwoom = QAxWidget("KHOPENAPI.KHOpenAPICtrl.1")
+    self.kiwoom.dynamicCall("CommConnect()")
+    # 이벤트(OnEventConnect) 발생 시 자동으로 이벤트 처리 메서드(self.event_connect) 호출
+    self.kiwoom.OnEventConnect.connect(self.event_connect)
     
     btn1 = QPushButton("Login", self)
     btn1.move(20, 20)
@@ -39,6 +43,10 @@ class MyWindow(QMainWindow):
       self.statusBar().showMessage("Not connected")
     else:
       self.statusBar().showMessage("Connected")
+      
+  def event_connect(self, err_code):
+    if err_code == 0:
+      self.text_edit.append("로그인 성공")
       
 if __name__ == "main":
   # QApplication 클래스의 인스턴스 생성
