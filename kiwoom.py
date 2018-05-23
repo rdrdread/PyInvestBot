@@ -27,8 +27,13 @@ class MyWindow(QMainWindow):
     # QAxWidget 클래스는 QAxBase 클래스를 상속받았으므로 QAxWidget 클래스의 인스턴스는 dynamicCall 메서드를 호출할 수 있음
     self.kiwoom.dynamicCall("CommConnect()")
     
+    # QTextEdit 객체는 최상위 윈도우 안으로 생성돼야 하므로 QTextEdit 객체를 생성할 때 인자로 self 매개변수를 전달
+    # self를 사용하는 이유는 클래스의 다른 메서드에서도 해당 변수를 사용해 객체에 접근하기 위해서
+    # self.text_edit는 생성자에서 객체를 바인딩할 때 사용될뿐더러 event_connect 메서드에서도 사용되기 때문에 text_edit가 아니라 self.text_edit를 사용
     self.text_edit = QTextEdit(self)
+    # QTextEdit 클래스의 크기 및 출력 위치를 조절
     self.text_edit.setGeometry(10, 60, 280, 80)
+    # 읽기/쓰기 모드를 변경
     self.text_edit.setEnabled(False)
     
     # Open API+는 통신 연결 상태가 바뀔 때 OnEventConnect라는 이벤트가 발생
