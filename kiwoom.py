@@ -16,4 +16,18 @@ class MyWindow(QMainWindow):
   def __init__(self):
     # super 내장 함수를 이용해 부모 클래스(QMainWindow)의 생성자를 명시적으로 호출
     super ().__init__()
+    # 윈도우의 타이틀을 변경하는 메소드
+    self.setWindowTitle("PyInvestBot")
+    # 윈도우의 좌표, 사이즈 변굥하는 메소드
+    self.setGeometry(300, 300, 300, 400)
     
+if __name__ == "main":
+  # QApplication 클래스의 인스턴스 생성
+  # 이벤트 루프를 담당하는 부분
+  app = QApplication (sys.argv)
+  # 앞서 작성한 MyWindow 클래스의 인스턴스 생성
+  myWindow =MyWindow()
+  # 새롭게 작성한 윈도우를 화면에 출력
+  myWindow.show()
+  #
+  app.exec_()
