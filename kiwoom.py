@@ -18,7 +18,7 @@ class MyWindow(QMainWindow):
     super ().__init__()
     # 윈도우의 타이틀을 변경하는 메소드
     self.setWindowTitle("PyInvestBot")
-    # 윈도우의 좌표, 사이즈 변굥하는 메소드
+    # 윈도우의 좌표, 사이즈를 변경하는 메소드
     self.setGeometry(300, 300, 300, 400)
     
 if __name__ == "main":
@@ -29,5 +29,5 @@ if __name__ == "main":
   myWindow =MyWindow()
   # 새롭게 작성한 윈도우를 화면에 출력
   myWindow.show()
-  #
+  # 이벤트 루프를 실행
   app.exec_()
