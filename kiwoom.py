@@ -1,6 +1,10 @@
+import sys
+
 # COM 방식이 아닌 OCX 방식이라 PyQt 패키지의 QAxContainer 모듈을 이용함
 # PyQt는 Qt라는 GUI 프레임워크의 파이썬 바인딩임
 from PyQt5.QAxContainer import *
+
+from PyQt5.QtGui import *
 
 # PyQt5라는 디렉터리의 QtWidgets 파일에 있는 모든 것 (*)을 import 하라는 의미이므로,
 # 해당 모듈 (QtCore)에 정의된 변수, 함수, 클래스를 모듈 이름을 통해 접근할 필요 없이 바로 사용할 수 있음
@@ -16,17 +20,58 @@ class MyWindow(QMainWindow):
   def __init__(self):
     # super 내장 함수를 이용해 부모 클래스(QMainWindow)의 생성자를 명시적으로 호출
     super ().__init__()
-    # 윈도우의 타이틀을 변경하는 메소드
-    self.setWindowTitle("PyInvestBot")
-    # 윈도우의 좌표, 사이즈를 변경하는 메소드
-    self.setGeometry(300, 300, 300, 400)
     
     # 키움증권에서 제공하는 클래스를 사용하기 위해 ProgID를 QAxWidget 클래스의 생성자로 전달하여 인스턴스를 생성
     self.kiwoom = QAxWidget("KHOPENAPI.KHOpenAPICtrl.1")
     # COM 방식에서 인스턴스를 통해 메서드를 호출했던 것과 달리 OCX 방식에서는 QAxBase 클래스의 dynamicCall 메서드를 사용해 원하는 메서드를 호출
     # QAxWidget 클래스는 QAxBase 클래스를 상속받았으므로 QAxWidget 클래스의 인스턴스는 dynamicCall 메서드를 호출할 수 있음
     self.kiwoom.dynamicCall("CommConnect()")
+    # Open API+는 통신 연결 상태가 바뀔 때 OnEventConnect라는 이벤트가 발생
+    # 이벤트(OnEventConnect) 발생 시 자동으로 이벤트 처리 메서드(self.event_connect) 호출
+    self.kiwoom.OnEventConnect.connect(self.event_connect)
     
+    # 윈도우의 타이틀을 변경하는 메소드
+    self.setWindowTitle("PyInvestBot")
+    # 윈도우의 좌표, 사이즈를 변경하는 메소드
+    self.setGeometry(300, 300, 300, 400)
+    
+    # QLabel - 간단한 텍스트 출력 위젯
+    # 첫 번째 인자 : 출력될 문자열, 두 번째 인자 : 부모 위젯
+    # 생성자에서 텍스트를 출력하는 용도로만 사용되며 다른 메서드에서는 사용되지 않으므로 self.label로 바인딩 안함
+    label = QLabel('종목코드: ', self)
+    # 출력 위치 조정
+    # 크기/위치 동시 조절하려면 setGeometry 사용
+    label.move(20, 20)
+    
+    # QLineEdit - 간단한 사용자 입력 처리 위젯
+    self.code_edit = QLineEdit(self)
+    self.code_edit.move(80, 20)
+    # 기본값으로 키움증권의 종목 코드를 QLineEdit에 출력하기 위해 setText 메서드를 사용
+    self.code_edit.setText("039490")
+    
+    # QPushButton - 버튼 생성 위젯
+    # 첫 번째 인자 : 출력될 텍스트, 두 번째 인자 : 부모 위젯
+    btn1 = QPushButton("조회", self)
+    btn1.move(190, 20)
+    btn1.clicked.connect(self.btn1_clicked)
+    
+    # QTextEdit - 메시지 출력
+    self.text_edit = QTextEdit(self)
+    self.text_edit.setGeometry(10, 60, 280, 80)
+    # 사용자가 QTextEdit 위젯을 통해 입력할 수 없고 오직 읽기 모드로만 사용하도록 setEnabled 메서드를 사용
+    self.text_edit.setEnabled(False)
+  
+  def event_connect(self, err_code):
+    if err_code == 0:
+      self.text_edit.append("로그인 성공")
+    
+  def btn1_clicked(self):
+    # text 메서드를 통해 QLineEdit에 사용자가 입력한 값을 가져옴
+    code = self.code_edit.text()
+    # 사용자로부터 입력받은 값을 QTextEdit 위젯에 출력하기 위해 self.text_edit라는 변수를 통해 append 메서드를 호출
+    self.text_edit.append("종목코드: " + code)
+    
+    ''''
     # QTextEdit 객체는 최상위 윈도우 안으로 생성돼야 하므로 QTextEdit 객체를 생성할 때 인자로 self 매개변수를 전달
     # self를 사용하는 이유는 클래스의 다른 메서드에서도 해당 변수를 사용해 객체에 접근하기 위해서
     # self.text_edit는 생성자에서 객체를 바인딩할 때 사용될뿐더러 event_connect 메서드에서도 사용되기 때문에 text_edit가 아니라 self.text_edit를 사용
@@ -36,10 +81,9 @@ class MyWindow(QMainWindow):
     # 읽기/쓰기 모드를 변경
     self.text_edit.setEnabled(False)
     
-    # Open API+는 통신 연결 상태가 바뀔 때 OnEventConnect라는 이벤트가 발생
-    # 이벤트(OnEventConnect) 발생 시 자동으로 이벤트 처리 메서드(self.event_connect) 호출
-    self.kiwoom.OnEventConnect.connect(self.event_connect)
+    ''''
     
+    ''''
     # 윈도우 버튼 추가를 위해 MyWindow 클래스의 생성자에서 QPushButton 클래스의 인스턴스를 생성
     btn1 = QPushButton("Login", self)
     # 버튼 출력 위치를 조정
@@ -63,10 +107,8 @@ class MyWindow(QMainWindow):
       self.statusBar().showMessage("Not connected")
     else:
       self.statusBar().showMessage("Connected")
-      
-  def event_connect(self, err_code):
-    if err_code == 0:
-      self.text_edit.append("로그인 성공")
+    ''''
+    
       
 if __name__ == "main":
   # QApplication 클래스의 인스턴스 생성
