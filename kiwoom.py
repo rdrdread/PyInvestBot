@@ -41,6 +41,29 @@ class MyWindow(QMainWindow):
     # 윈도우의 좌표, 사이즈를 변경하는 메소드
     self.setGeometry(300, 300, 300, 400)
     
+    btn1 = QPushButton("종목코드 얻기", self)
+    btn1.move(190, 10)
+    btn1.clicked.connect(self.btn1_clicked)
+    
+    self.listWidget = QListWidget(self)
+    self.listWidget.setGeometry(10, 10, 170, 130)
+    
+    def btn1_clicked(self):
+      # 유가증권시장의 종목 코드 목록을 가져옴
+      ret = self.kiwoom.dynamicCall("GetCodeListByMarket(QString)", ["0"])
+      # 세미콜론을 기준으로 문자열을 분리해서 파이썬 리스트를 생성
+      kospi_code_list = ret.split(';')
+      kospi_code_name_list = []
+      
+      # 반복문을 사용해 각 종목 코드에 대한 한글 종목명을 가져온 후 종목 코드와 한글 종목명을 하나의 문자열로 구성해서 새로운 리스트(kospi_code_name_list)에 추가
+      for x in kospi_code_list:
+        name = self.kiwoom.dynamicCall("GetMasterCodeName(QString)", [x])
+        kospi_code_name_list.append(x + " : " + name)
+        
+      # 종목 코드와 한글 종목명이 저장된 파이썬 리스트를 addItems 메서드의 인자로 전달해서 파이썬 리스트에 있는 항목을 QListWidget에 추가
+      self.listWidget.addItems(kospi_code_name_list)
+      
+    '''
     btn1 = QPushButton("계좌 얻기", self)
     btn1.move(190, 20)
     btn1.clicked.connect(self.btn1_clicked)
@@ -59,6 +82,7 @@ class MyWindow(QMainWindow):
     def event_connect(self, err_code):
       if err_code == 0:
         self.text_edit.append("로그인 성공")
+    '''
     
     '''
     # QLabel - 간단한 텍스트 출력 위젯
