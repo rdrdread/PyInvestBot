@@ -29,6 +29,9 @@ class MyWindow(QMainWindow):
     # Open API+는 통신 연결 상태가 바뀔 때 OnEventConnect라는 이벤트가 발생
     # 이벤트(OnEventConnect) 발생 시 자동으로 이벤트 처리 메서드(self.event_connect) 호출
     self.kiwoom.OnEventConnect.connect(self.event_connect)
+    # 서버로부터 이벤트가 발생할 때까지 이벤트 루프를 사용해 대기
+    # 서버와 통신한 후 서버로부터 데이터를 전달받은 시점에 발생
+    self.kiwoom.OnReceiveTrData.connect(self.receive_trdata)
     
     # 윈도우의 타이틀을 변경하는 메소드
     self.setWindowTitle("PyInvestBot")
@@ -70,6 +73,30 @@ class MyWindow(QMainWindow):
     code = self.code_edit.text()
     # 사용자로부터 입력받은 값을 QTextEdit 위젯에 출력하기 위해 self.text_edit라는 변수를 통해 append 메서드를 호출
     self.text_edit.append("종목코드: " + code)
+    
+    # SetInputValue 메서드를 사용해 TR 입력 값을 설정 (TR을 구성)
+    # "종목코드", "입력값1"
+    # QLineEdit 위젯을 통해 입력받은 종목 코드를 SetInputValue 메서드의 두 번째 인자로 전달
+    self.kiwoom.dynamicCall("SetInputValue(QString, QString)", "종목코드", code)
+    # CommRqData 메서드를 사용해 TR을 서버로 송신
+    # "RQName", "opt10001", "0", "화면번호"
+    self.kiwoom.dynamicCall("CommRqData(QString, QString, int, QString)", "opt10001_req", "opt10001", 0, "0101")
+    
+  # OnReceiveTrData 메서드의 첫 번째 인자는 당연히 self이고 나머지 인자는 OnReceiveTrData 이벤트의 원형을 참조해서 인자를 순서대로 받을 수 있도록 구현 rn
+  def receive_trdata(self, screen_no, rqname, trcode, recordname, prev_next, data_len, err_code, msg1, msg2):
+    if rqname == "opt10001_req":
+      # CommGetData 메서드를 사용해 수신 데이터를 가져옴
+      # OnReceiveTrData 이벤트가 발생했다는 것은 서버로부터 데이터를 전달 받았음을 의미하므로 OnReceiveTrData 메서드에서 CommGetData 메서드를 호출해서 데이터를 가져오면ehla
+      # CommGetData의 첫 번째 인자와 세 번째 인자에 TR 명과 Request 명을 입력해 어떤 TR에 대한 데이터를 얻고자 하는지 알려줘야 함
+      # Tran 데이터 - Tran명, X, 레코드명, 반복인덱스, 아이템명
+      # 실시간 데이터 - Key Code, Real Type, Item Index, X, X
+      # 체결 데이터 - 체결구분, "-1", X, ItemIndex, X
+      name = self.kiwoom.dynamicCall("CommGetData(QString, QString, QString, int, QString)", trcode, "", rqname, 0, "종목명")
+      volume = self.kiwoom.dynamicCall("CommGetData(QString, QString, QString, int, QString)", trcode, "", rqname, 0, "거래량")
+      # strip 메서드를 호출해 문자열의 공백을 제거
+      # 그런 다음 QTexEdit 객체에 해당 문자열을 추가
+      self.text_edit.append("종목명: " + name.strip())
+      self.text_edit.append("거래량: " + volume.strip())
     
     ''''
     # QTextEdit 객체는 최상위 윈도우 안으로 생성돼야 하므로 QTextEdit 객체를 생성할 때 인자로 self 매개변수를 전달
