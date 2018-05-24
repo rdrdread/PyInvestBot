@@ -52,9 +52,13 @@ class MyWindow(QMainWindow):
     btn2.clicked.connect(self.btn2_clicked)
     
   def btn1_clicked(self):
+    # CommConnect() - 로그인 윈도우를 실행한다.
+    # OCX 방식에서는 QAxBase 클래스의 dynamicCall 메서드를 사용해 원하는 메서드를 호출
     ret = self.kiwoom.dynamicCall("CommConnect()")
       
   def btn2_clicked(self):
+    # GetConnectState() - 현재 접속상태를 반환한다.
+    # 0:미연결, 1:연결완료
     if self.kiwoom.dynamicCall("GetConnectState()") == 0:
       self.statusBar().showMessage("Not connected")
     else:
