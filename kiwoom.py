@@ -40,8 +40,11 @@ class MyWindow(QMainWindow):
     # 이벤트(OnEventConnect) 발생 시 자동으로 이벤트 처리 메서드(self.event_connect) 호출
     self.kiwoom.OnEventConnect.connect(self.event_connect)
     
+    # 윈도우 버튼 추가를 위해 MyWindow 클래스의 생성자에서 QPushButton 클래스의 인스턴스를 생성
     btn1 = QPushButton("Login", self)
+    # 버튼 출력 위치를 조정
     btn1.move(20, 20)
+    # 'clicked' 이벤트와 btn1_clicked라는 이벤트 처리 메서드를 connect라는 메서드로 연결
     btn1.clicked.connect(self.btn1_clicked)
     
     btn2 = QPushButton("Check state", self)
