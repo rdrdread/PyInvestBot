@@ -21,11 +21,14 @@ class MyWindow(QMainWindow):
     # super 내장 함수를 이용해 부모 클래스(QMainWindow)의 생성자를 명시적으로 호출
     super ().__init__()
     
+    # Kiwoom Login
     # 키움증권에서 제공하는 클래스를 사용하기 위해 ProgID를 QAxWidget 클래스의 생성자로 전달하여 인스턴스를 생성
     self.kiwoom = QAxWidget("KHOPENAPI.KHOpenAPICtrl.1")
     # COM 방식에서 인스턴스를 통해 메서드를 호출했던 것과 달리 OCX 방식에서는 QAxBase 클래스의 dynamicCall 메서드를 사용해 원하는 메서드를 호출
     # QAxWidget 클래스는 QAxBase 클래스를 상속받았으므로 QAxWidget 클래스의 인스턴스는 dynamicCall 메서드를 호출할 수 있음
     self.kiwoom.dynamicCall("CommConnect()")
+    
+    # OpenAPI+ Event
     # Open API+는 통신 연결 상태가 바뀔 때 OnEventConnect라는 이벤트가 발생
     # 이벤트(OnEventConnect) 발생 시 자동으로 이벤트 처리 메서드(self.event_connect) 호출
     self.kiwoom.OnEventConnect.connect(self.event_connect)
@@ -38,6 +41,26 @@ class MyWindow(QMainWindow):
     # 윈도우의 좌표, 사이즈를 변경하는 메소드
     self.setGeometry(300, 300, 300, 400)
     
+    btn1 = QPushButton("계좌 얻기", self)
+    btn1.move(190, 20)
+    btn1.clicked.connect(self.btn1_clicked)
+    
+    self.text_edit = QTextEdit(self)
+    self.text_edit.setGeometry(10, 60, 280, 80)
+    
+    def btn1_clicked(self):
+      # GetLoginInfo 메서드를 이용하면 계좌 개수, 계좌 번호, 사용자ID, 사용자명 등의 정보를 가져올 수 있음
+      # GetLoginInfo 메서드는 이벤트 방식으로 동작하는 것도 아니므로 단순히 dynamicCall 메서드를 통해 호출하면 값을 바로 얻을 수 있음
+      # 메서드의 인자가 한 개인데 실제 인자를 전달하는 부분에서 다음 코드와 같이 반드시 리스트 형태로 값을 전달해야 함
+      account_num = self.kiwoom.dynamicCall("GetLoginInfo(QString)", ["ACCNO"])
+      # QTexEdit에 계좌 번호를 출력할 때 문자열의 rstrip 메서드를 사용해 문자열 끝의 세미콜론을 제거
+      self.text_edit.append("계좌번호: " + account_num.rstrip(';'))
+      
+    def event_connect(self, err_code):
+      if err_code == 0:
+        self.text_edit.append("로그인 성공")
+    
+    '''
     # QLabel - 간단한 텍스트 출력 위젯
     # 첫 번째 인자 : 출력될 문자열, 두 번째 인자 : 부모 위젯
     # 생성자에서 텍스트를 출력하는 용도로만 사용되며 다른 메서드에서는 사용되지 않으므로 self.label로 바인딩 안함
@@ -97,8 +120,9 @@ class MyWindow(QMainWindow):
       # 그런 다음 QTexEdit 객체에 해당 문자열을 추가
       self.text_edit.append("종목명: " + name.strip())
       self.text_edit.append("거래량: " + volume.strip())
+    '''
     
-    ''''
+    '''
     # QTextEdit 객체는 최상위 윈도우 안으로 생성돼야 하므로 QTextEdit 객체를 생성할 때 인자로 self 매개변수를 전달
     # self를 사용하는 이유는 클래스의 다른 메서드에서도 해당 변수를 사용해 객체에 접근하기 위해서
     # self.text_edit는 생성자에서 객체를 바인딩할 때 사용될뿐더러 event_connect 메서드에서도 사용되기 때문에 text_edit가 아니라 self.text_edit를 사용
@@ -107,7 +131,6 @@ class MyWindow(QMainWindow):
     self.text_edit.setGeometry(10, 60, 280, 80)
     # 읽기/쓰기 모드를 변경
     self.text_edit.setEnabled(False)
-    
     ''''
     
     ''''
